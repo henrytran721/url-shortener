@@ -29,6 +29,7 @@ app.use(bodyParser.json());
 
 app.post('/url-shorten', (req, res) => {
     let short = shortid.generate();
+    console.log(req.body.url);
     let newUrl = new Url({
         originalUrl: req.body.url,
         shortUrl: `http://localhost:8080/v/${short}`,
@@ -47,10 +48,24 @@ app.post('/url-shorten', (req, res) => {
     })
 })
 
-app.get('/v/:id', (req, res) => {
+app.get('/v/:id', async (req, res) => {
     // query and return redirect url
-    // console.log(req.params.id);
-    // res.redirect('http://google.com')
+    console.log(req.params.id);
+    let shortcode = await Url.findOne({urlCode: req.params.id})
+    // update record and increment count
+    await Url.findOneAndUpdate({urlCode: req.params.id}, {clickCount: shortcode.clickCount + 1})
+    res.redirect(shortcode.originalUrl);
+})
+
+app.post('/getstats', async (req, res) => {
+    let stats = await Url.findOne({urlCode: req.body.url}); 
+    if(stats) {
+        res.json(stats);
+    } else {
+        res.status(400).send({
+            message: "Error: No record found, please enter a valid URL"
+        });
+    }
 })
 
 app.listen(8080, () => {

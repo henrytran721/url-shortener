@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import '../styles/urlshortener.scss';
+import {debounce} from '../debounce';
 
 export const UrlShortener = () => {
     const [url, setUrl] = useState('');
@@ -19,30 +21,21 @@ export const UrlShortener = () => {
 
             const body = await response.json();
             setShortUrl(body.shortUrl);
-        }
-    }
-    
-    // debounce so we don't overload the database
-    function debounce(func, timeout) {
-        let timer;
-        return (...args) => {
-            if(!timer) {
-                func();
-            }
-            clearTimeout(timer);
-            timer = setTimeout(() => {
-                timer = undefined;
-            }, timeout)
+            setUrl('');
         }
     }
 
     return (
         <>
-        <h1>Url Shortener</h1>
-        <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} placeholder='Please Enter Url'/>
-        <button onClick={debounce(sendUrl, 200)}>Shorten</button>
+        <div className='shortenDiv'>
+            <h1>Url Shortener</h1>
+            <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} placeholder='Please Enter Url'/>
+            <button className='shortenBtn' onClick={debounce(sendUrl, 200)}>Shorten</button>
+        </div>
         <a href={shortUrl}>{shortUrl}</a>
         </>
     )
 }
 
+
+// http://localhost:8080/v/T733O-myD
